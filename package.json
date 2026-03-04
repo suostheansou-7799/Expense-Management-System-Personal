@@ -1,0 +1,14 @@
+{
+    "name": "expenses-tracker-root",
+    "private": true,
+    "scripts": {
+        "test:rules": "jest firestore.rules.test.js --runInBand",
+        "test:rules:emulator": "cross-env FIREBASE_EMULATORS_PATH=.firebase-emulators firebase emulators:exec --only firestore \"npm run test:rules\""
+    },
+    "devDependencies": {
+        "@firebase/rules-unit-testing": "^4.0.1",
+        "cross-env": "^7.0.3",
+        "firebase-tools": "^14.12.1",
+        "jest": "^29.7.0"
+    }
+}

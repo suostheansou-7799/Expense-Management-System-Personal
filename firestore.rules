@@ -1,0 +1,165 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAllowedSharedEmail() {
+      return request.auth != null
+        && ('email' in request.auth.token)
+        && (request.auth.token.email is string)
+        && (
+          request.auth.token.email.lower() == 'suostheansou@gmail.com'
+          || request.auth.token.email.lower() == 'theansou092@gmail.com'
+        );
+    }
+
+    function isSharedGroupDoc() {
+      return ('groupId' in resource.data)
+        && (resource.data.groupId is string)
+        && resource.data.groupId == 'theansou_shared_family_group';
+    }
+
+    function isSharedGroupCreateDoc() {
+      return ('groupId' in request.resource.data)
+        && (request.resource.data.groupId is string)
+        && request.resource.data.groupId == 'theansou_shared_family_group';
+    }
+
+    function isTwoEmailLegacyDoc() {
+      return ('userEmail' in resource.data)
+        && (resource.data.userEmail is string)
+        && (
+          resource.data.userEmail.lower() == 'suostheansou@gmail.com'
+          || resource.data.userEmail.lower() == 'theansou092@gmail.com'
+        );
+    }
+
+    function isTwoEmailLegacyCreateDoc() {
+      return ('userEmail' in request.resource.data)
+        && (request.resource.data.userEmail is string)
+        && (
+          request.resource.data.userEmail.lower() == 'suostheansou@gmail.com'
+          || request.resource.data.userEmail.lower() == 'theansou092@gmail.com'
+        );
+    }
+    
+    // ============================================
+    // HELPER FUNCTIONS
+    // ============================================
+    
+    // Check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Check if user is admin (via custom claims)
+    function isAdmin() {
+      return isAllowedSharedEmail() || (request.auth != null && ('admin' in request.auth.token) && request.auth.token.admin == true);
+    }
+    
+    // Check if user owns the document
+    function isOwner(userId) {
+      return request.auth != null && request.auth.uid == userId;
+    }
+
+    // Check ownership by email (for legacy data where UID changed)
+    function isEmailOwner() {
+      return request.auth != null
+        && ('email' in request.auth.token)
+        && ('userEmail' in resource.data)
+        && (request.auth.token.email is string)
+        && (resource.data.userEmail is string)
+        && request.auth.token.email.lower() == resource.data.userEmail.lower();
+    }
+
+    // Check create ownership by email (optional field validation)
+    function isCreateEmailOwner() {
+      return !('userEmail' in request.resource.data)
+        || (
+          ('email' in request.auth.token)
+          && (request.auth.token.email is string)
+          && (request.resource.data.userEmail is string)
+          && request.auth.token.email.lower() == request.resource.data.userEmail.lower()
+        );
+    }
+    
+    // ============================================
+    // USERS COLLECTION (Protected)
+    // ============================================
+    match /users/{userId} {
+      // អ្នកប្រើប្រាស់អាចអានតែព័ org៌មានខ្លួនឯង ឬ Admin អាចអានទាំងអស់
+      // Users can only read their own profile, Admins can read all
+      allow read: if isAllowedSharedEmail() && (isOwner(userId) || isAdmin());
+      
+      // អ្នកប្រើប្រាស់អាចបង្កើត profile ខ្លួនឯងតែប៉ុណ្ណោះ
+      // Users can only create their own profile
+      allow create: if isAllowedSharedEmail() && isOwner(userId);
+      
+      // អ្នកប្រើប្រាស់អាចកែប្រែ profile ខ្លួនឯង, Admin អាចកែប្រែទាំងអស់
+      // Users can update their own profile, admins can update any
+      allow update: if isAllowedSharedEmail() && (isOwner(userId) || isAdmin());
+      
+      // មានតែ Admin ទេដែលអាចលុប users
+      // Only admins can delete users
+      allow delete: if isAllowedSharedEmail() && isAdmin();
+    }
+    
+    // ============================================
+    // EXPENSES COLLECTION
+    // ============================================
+    match /expenses/{expenseId} {
+      // Users can only read their own expenses, Admins can read all
+      allow read: if isAllowedSharedEmail()
+        && ((resource.data.userId == request.auth.uid) || isEmailOwner() || isSharedGroupDoc() || isTwoEmailLegacyDoc() || isAdmin());
+
+      // Users can only create expenses for themselves
+      allow create: if isAllowedSharedEmail()
+        && request.resource.data.userId == request.auth.uid
+        && isCreateEmailOwner()
+        && (isSharedGroupCreateDoc() || isTwoEmailLegacyCreateDoc());
+
+      // Users can only update/delete their own expenses, Admins can update/delete all
+      allow update, delete: if isAllowedSharedEmail()
+        && ((resource.data.userId == request.auth.uid) || isEmailOwner() || isSharedGroupDoc() || isTwoEmailLegacyDoc() || isAdmin());
+    }
+    
+    // ============================================
+    // INCOMES COLLECTION
+    // ============================================
+    match /incomes/{incomeId} {
+      // Users can only read their own incomes, Admins can read all
+      allow read: if isAllowedSharedEmail()
+        && ((resource.data.userId == request.auth.uid) || isEmailOwner() || isSharedGroupDoc() || isTwoEmailLegacyDoc() || isAdmin());
+
+      // Users can only create incomes for themselves
+      allow create: if isAllowedSharedEmail()
+        && request.resource.data.userId == request.auth.uid
+        && isCreateEmailOwner()
+        && (isSharedGroupCreateDoc() || isTwoEmailLegacyCreateDoc());
+
+      // Users can only update/delete their own incomes, Admins can update/delete all
+      allow update, delete: if isAllowedSharedEmail()
+        && ((resource.data.userId == request.auth.uid) || isEmailOwner() || isSharedGroupDoc() || isTwoEmailLegacyDoc() || isAdmin());
+    }
+    
+    // ============================================
+    // SESSION INVALIDATIONS (Force Logout)
+    // ============================================
+    match /session_invalidations/{userId} {
+      // Users can read their own invalidation status, Admins can read all
+      allow read: if isAllowedSharedEmail() && (isOwner(userId) || isAdmin());
+
+      // Only admins can create invalidations (force logout others)
+      allow create: if isAllowedSharedEmail() && isAdmin();
+
+      // Users can delete/update their own, Admins can delete/update all
+      allow delete, update: if isAllowedSharedEmail() && (isOwner(userId) || isAdmin());
+    }
+    
+    // ============================================
+    // DEFAULT: Deny all other access
+    // ============================================
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

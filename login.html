@@ -1,0 +1,1156 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#6366f1">
+    <title>Login - Theansou Expenses</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <style>
+        /* --- Dark Theme Login Page --- */
+        
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+         :root {
+            --primary: #6366f1;
+            --primary-hover: #818cf8;
+            --primary-light: rgba(99, 102, 241, 0.2);
+            --primary-glow: rgba(99, 102, 241, 0.3);
+            /* Dark Theme Colors - matching main system */
+            --dark-bg: #0f172a;
+            --dark-surface: #1e293b;
+            --dark-surface-2: #334155;
+            --dark-surface-3: #475569;
+            --dark-border: #475569;
+            --dark-border-subtle: rgba(71, 85, 105, 0.5);
+            --dark-text: #f1f5f9;
+            --dark-text-secondary: #94a3b8;
+            --dark-text-muted: #64748b;
+            --gradient-1: linear-gradient(135deg, #6366f1, #8b5cf6, #a855f7);
+            --gradient-2: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #312e81 100%);
+            --accent: #6366f1;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        html,
+        body {
+            height: 100%;
+        }
+        
+        body {
+            font-family: 'Inter', 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            background: var(--gradient-2);
+            position: relative;
+            overflow: hidden;
+            color: var(--dark-text);
+            overscroll-behavior: none;
+        }
+        /* Background Image with dark overlay */
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('background.jpg') center/cover no-repeat;
+            opacity: 0.12;
+            z-index: 0;
+        }
+        
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(180deg, rgba(15, 23, 42, 0.4) 0%, rgba(15, 23, 42, 0.6) 100%);
+            z-index: 0;
+        }
+        
+        @media (max-width: 767px) {
+            body::before {
+                background: url('backgrounonphone.jpg') center/cover no-repeat;
+            }
+        }
+        /* Animated background shapes */
+        
+        .bg-shapes {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 0;
+            overflow: hidden;
+            pointer-events: none;
+        }
+        
+        .bg-shapes .shape {
+            position: absolute;
+            border-radius: 50%;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(139, 92, 246, 0.1));
+            filter: blur(40px);
+            animation: float 20s infinite ease-in-out;
+        }
+        
+        .shape:nth-child(1) {
+            width: 500px;
+            height: 500px;
+            top: -200px;
+            right: -150px;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(139, 92, 246, 0.15));
+            animation-delay: 0s;
+        }
+        
+        .shape:nth-child(2) {
+            width: 400px;
+            height: 400px;
+            bottom: -150px;
+            left: -150px;
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.15), rgba(99, 102, 241, 0.1));
+            animation-delay: -5s;
+        }
+        
+        .shape:nth-child(3) {
+            width: 300px;
+            height: 300px;
+            top: 40%;
+            left: 30%;
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.1), rgba(99, 102, 241, 0.1));
+            animation-delay: -10s;
+        }
+        
+        @keyframes float {
+            0%,
+            100% {
+                transform: translate(0, 0) rotate(0deg) scale(1);
+            }
+            25% {
+                transform: translate(30px, -40px) rotate(90deg) scale(1.1);
+            }
+            50% {
+                transform: translate(-30px, 30px) rotate(180deg) scale(1);
+            }
+            75% {
+                transform: translate(40px, 15px) rotate(270deg) scale(0.95);
+            }
+        }
+        /* Dark Glass Panel */
+        
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.85);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid var(--dark-border-subtle);
+            border-radius: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 8px 24px -4px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            position: relative;
+            z-index: 1;
+        }
+        /* Glass Input - Dark Theme */
+        
+        .glass-input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid var(--dark-border-subtle);
+            border-radius: 14px;
+            font-size: 1rem;
+            background: rgba(15, 23, 42, 0.6);
+            color: var(--dark-text);
+            transition: all 0.3s ease;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .glass-input::placeholder {
+            color: var(--dark-text-muted);
+        }
+        
+        .glass-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: rgba(15, 23, 42, 0.8);
+            box-shadow: 0 0 0 4px var(--primary-light), 0 0 20px var(--primary-glow);
+        }
+        /* Message Container */
+        
+        #message-container {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 9999;
+            width: 90%;
+            max-width: 400px;
+        }
+        
+        .animate-fade-in-down {
+            animation: fadeInDown 0.3s ease-out;
+        }
+        
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        /* Loading Spinner */
+        
+        .animate-spin {
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        
+        .animate-pulse {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        
+        @keyframes pulse {
+            0%,
+            100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+        /* Icon wrapper with glow */
+        
+        .icon-glow {
+            width: 72px;
+            height: 72px;
+            background: var(--gradient-1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            box-shadow: 0 0 30px var(--primary-glow);
+            animation: glow-pulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes glow-pulse {
+            0%,
+            100% {
+                box-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
+            }
+            50% {
+                box-shadow: 0 0 40px rgba(99, 102, 241, 0.5);
+            }
+        }
+        /* Primary Button - Gradient */
+        
+        .btn-primary {
+            width: 100%;
+            padding: 14px;
+            background: var(--gradient-1);
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+        
+        .btn-primary:hover::before {
+            left: 100%;
+        }
+        
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(99, 102, 241, 0.5), 0 0 40px rgba(139, 92, 246, 0.3);
+        }
+        
+        .btn-primary:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+        /* Google Button - Dark Theme */
+        
+        .btn-google {
+            width: 100%;
+            padding: 14px;
+            background: var(--dark-surface);
+            border: 2px solid var(--dark-border-subtle);
+            border-radius: 14px;
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--dark-text);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .btn-google:hover:not(:disabled) {
+            background: var(--dark-surface-2);
+            border-color: var(--dark-border);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+        
+        .btn-google:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+        /* Divider - Dark Theme */
+        
+        .divider {
+            position: relative;
+            text-align: center;
+            margin: 1.5rem 0;
+        }
+        
+        .divider::before,
+        .divider::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 42%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--dark-border-subtle), transparent);
+        }
+        
+        .divider::before {
+            left: 0;
+            background: linear-gradient(90deg, transparent, var(--dark-border-subtle));
+        }
+        
+        .divider::after {
+            right: 0;
+            background: linear-gradient(90deg, var(--dark-border-subtle), transparent);
+        }
+        
+        .divider span {
+            background: transparent;
+            padding: 0 1rem;
+            color: var(--dark-text-muted);
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        /* Text colors for dark theme */
+        
+        .text-dark-primary {
+            color: var(--dark-text) !important;
+        }
+        
+        .text-dark-secondary {
+            color: var(--dark-text-secondary) !important;
+        }
+        
+        .text-dark-muted {
+            color: var(--dark-text-muted) !important;
+        }
+        /* Link styles */
+        
+        .auth-link {
+            color: var(--primary-hover);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        
+        .auth-link:hover {
+            color: #a5b4fc;
+            text-decoration: underline;
+        }
+        /* Secondary button */
+        
+        .btn-secondary {
+            width: 100%;
+            padding: 14px;
+            background: transparent;
+            border: 2px solid var(--dark-border-subtle);
+            border-radius: 14px;
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--dark-text-secondary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .btn-secondary:hover:not(:disabled) {
+            background: var(--dark-surface-2);
+            border-color: var(--dark-border);
+            color: var(--dark-text);
+        }
+        /* Badge styles */
+        
+        .badge-verified {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.25rem 0.75rem;
+            background: rgba(16, 185, 129, 0.2);
+            border: 1px solid rgba(16, 185, 129, 0.4);
+            border-radius: 9999px;
+            color: #34d399;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        /* Loading screen styles */
+        
+        .loader-ring {
+            width: 60px;
+            height: 60px;
+            border: 5px solid var(--dark-surface-2);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            box-shadow: 0 0 20px var(--primary-glow);
+        }
+        /* Info box */
+        
+        .info-box {
+            background: rgba(99, 102, 241, 0.1);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 12px;
+            padding: 1rem;
+            color: var(--dark-text-secondary);
+        }
+        
+        .info-box.warning {
+            background: rgba(245, 158, 11, 0.1);
+            border-color: rgba(245, 158, 11, 0.3);
+        }
+        /* Custom scrollbar */
+        
+         ::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+         ::-webkit-scrollbar-track {
+            background: var(--dark-surface);
+        }
+        
+         ::-webkit-scrollbar-thumb {
+            background: var(--dark-surface-3);
+            border-radius: 3px;
+        }
+        
+         ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary);
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen overflow-x-hidden selection:bg-indigo-300 selection:text-indigo-900 flex items-center justify-center">
+
+    <div id="message-container" class="space-y-2"></div>
+
+    <!-- Login Screen -->
+    <div id="auth-screen" class="max-w-md mx-auto p-8 glass-panel rounded-3xl shadow-2xl text-center m-4">
+        <!-- Icon with glow effect -->
+        <div class="icon-glow mb-6">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            </svg>
+        </div>
+        <h2 class="text-3xl font-bold text-dark-primary mb-2" style="color: var(--dark-text);">Welcome Back</h2>
+        <p class="text-dark-secondary mb-8" style="color: var(--dark-text-secondary);">Access your shared group expenses securely.</p>
+
+        <form id="email-password-form" class="space-y-5 mb-6">
+            <div>
+                <input type="email" id="auth-email" placeholder="Email Address" required class="glass-input block w-full rounded-xl p-3">
+            </div>
+            <div>
+                <input type="password" id="auth-password" placeholder="Password" required class="glass-input block w-full rounded-xl p-3">
+            </div>
+            <div id="confirm-password-container" class="hidden">
+                <input type="password" id="auth-confirm-password" placeholder="Confirm Password" class="glass-input block w-full rounded-xl p-3">
+            </div>
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-2 text-sm">
+                <a href="#" id="forgot-password-btn" class="auth-link">Forgot password?</a>
+                <div class="text-center sm:text-right">
+                    <span style="color: var(--dark-text-secondary);">Don't have an account?</span>
+                    <a href="#" id="auth-toggle-link" class="auth-link ml-2">Create one</a>
+                </div>
+            </div>
+            <div>
+                <button type="submit" id="login-btn" class="btn-primary">
+                    Sign In
+                </button>
+            </div>
+        </form>
+
+        <div class="divider">
+            <span>OR</span>
+        </div>
+
+        <button id="google-signin-btn" class="btn-google">
+            <svg class="w-5 h-5 mr-3" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+            </svg>
+            Sign In with Google
+        </button>
+        <p class="mt-6 text-xs" style="color: var(--dark-text-muted);">Only authorized members can access this system.</p>
+    </div>
+
+    <!-- Forgot Password Modal -->
+    <div id="forgot-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 hidden">
+        <div class="bg-[var(--dark-surface)] rounded-2xl shadow-2xl p-8 w-full max-w-sm relative">
+            <button id="forgot-close-btn" class="absolute top-3 right-3 text-xl text-[var(--dark-text-muted)] hover:text-[var(--primary)] focus:outline-none"><i class="fas fa-times"></i></button>
+            <h3 class="text-2xl font-bold mb-2 text-center" style="color: var(--dark-text);">Forgot Password?</h3>
+            <p class="mb-4 text-center text-[var(--dark-text-secondary)]">Enter your email to receive a reset link.</p>
+            <input type="email" id="forgot-email" placeholder="Email Address" class="glass-input mb-4" required autocomplete="email">
+            <div id="forgot-feedback" class="text-center text-sm mb-3 min-h-[1.5em]"></div>
+            <button id="forgot-send-btn" class="btn-primary w-full">Send Reset Link</button>
+        </div>
+    </div>
+
+    <!-- Loading Screen -->
+    <div id="loading-screen" class="hidden max-w-md mx-auto p-8 glass-panel rounded-3xl shadow-2xl text-center m-4">
+        <div class="icon-glow mb-6">
+            <svg class="animate-spin h-8 w-8 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+        </div>
+        <h2 class="text-3xl font-bold mb-2" style="color: var(--dark-text);">Signing In...</h2>
+        <p class="mb-8" style="color: var(--dark-text-secondary);">Please wait while we authenticate your account...</p>
+        <div class="w-full rounded-full h-2.5 mb-4" style="background: var(--dark-surface-2);">
+            <div class="h-2.5 rounded-full animate-pulse" style="width: 100%; background: var(--gradient-1);"></div>
+        </div>
+    </div>
+
+    <!-- Email Verification Reminder Screen -->
+    <div id="verification-screen" class="hidden max-w-md mx-auto p-8 glass-panel rounded-3xl shadow-2xl text-center m-4">
+        <div class="icon-glow mb-6" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
+            <i class="fas fa-envelope-circle-check text-2xl text-white"></i>
+        </div>
+        <h2 class="text-2xl font-bold mb-2" style="color: var(--dark-text);">Verify Your Email</h2>
+        <p class="mb-4" style="color: var(--dark-text-secondary);">Please check your email to verify your account before continuing.</p>
+        <p class="text-sm mb-6" style="color: var(--dark-text-muted);" id="verification-email-display">Email sent to: -</p>
+
+        <div class="space-y-3">
+            <button id="resend-verification-btn" class="btn-primary" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
+                <i class="fas fa-paper-plane mr-2"></i> Resend Verification Email
+            </button>
+            <button id="check-verification-btn" class="btn-secondary">
+                <i class="fas fa-refresh mr-2"></i> I've Verified, Continue
+            </button>
+            <button id="back-to-login-btn" class="w-full py-2 px-4 rounded-xl font-medium transition" style="color: var(--dark-text-muted);">
+                <i class="fas fa-arrow-left mr-2"></i> Back to Login
+            </button>
+        </div>
+    </div>
+
+    <!-- Profile Setup Screen (First-Time) -->
+    <div id="profile-setup-screen" class="hidden max-w-md mx-auto p-8 glass-panel rounded-3xl shadow-2xl m-4">
+        <div class="text-center mb-6">
+            <div class="icon-glow mb-4">
+                <i class="fas fa-user-plus text-2xl text-white"></i>
+            </div>
+            <h2 class="text-2xl font-bold mb-2" style="color: var(--dark-text);">Complete Your Profile</h2>
+            <p style="color: var(--dark-text-secondary);">Just a few more details to get started!</p>
+        </div>
+
+        <form id="profile-setup-form" class="space-y-4">
+            <!-- Personal Info Section -->
+            <div class="rounded-xl p-4" style="background: rgba(15, 23, 42, 0.4); border: 1px solid var(--dark-border-subtle);">
+                <h3 class="font-semibold mb-3 flex items-center" style="color: var(--dark-text);">
+                    <i class="fas fa-user-circle mr-2" style="color: var(--primary);"></i> Personal Info
+                </h3>
+
+                <div class="grid grid-cols-2 gap-3 mb-3">
+                    <div>
+                        <label class="block text-xs font-medium mb-1" style="color: var(--dark-text-secondary);">First Name *</label>
+                        <input type="text" id="profile-first-name" placeholder="John" required class="glass-input block w-full rounded-xl p-3 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium mb-1" style="color: var(--dark-text-secondary);">Last Name *</label>
+                        <input type="text" id="profile-last-name" placeholder="Doe" required class="glass-input block w-full rounded-xl p-3 text-sm">
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="block text-xs font-medium mb-1" style="color: var(--dark-text-secondary);">Display Name <span style="color: var(--dark-text-muted);">(optional)</span></label>
+                    <input type="text" id="profile-display-name" placeholder="How you want to be called" class="glass-input block w-full rounded-xl p-3 text-sm">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-medium mb-1" style="color: var(--dark-text-secondary);">Phone Number <span style="color: var(--dark-text-muted);">(optional)</span></label>
+                    <input type="tel" id="profile-phone" placeholder="+855 XX XXX XXXX" class="glass-input block w-full rounded-xl p-3 text-sm">
+                </div>
+            </div>
+
+            <!-- Email Display -->
+            <div class="rounded-xl p-4 flex items-center gap-3" style="background: rgba(99, 102, 241, 0.1); border: 1px solid rgba(99, 102, 241, 0.3);">
+                <div class="w-10 h-10 rounded-full flex items-center justify-center" style="background: var(--primary-light);">
+                    <i class="fas fa-envelope" style="color: var(--primary);"></i>
+                </div>
+                <div class="flex-1">
+                    <div class="text-xs" style="color: var(--dark-text-muted);">Your Email</div>
+                    <div class="font-medium" style="color: var(--dark-text);" id="profile-email-display">-</div>
+                </div>
+                <span id="email-verified-badge" class="badge-verified hidden">
+                    <i class="fas fa-check-circle"></i> Verified
+                </span>
+            </div>
+
+            <button type="submit" id="complete-profile-btn" class="btn-primary">
+                <i class="fas fa-check-circle mr-2"></i> Complete Setup & Continue
+            </button>
+        </form>
+
+        <p class="text-center text-xs mt-4" style="color: var(--dark-text-muted);">
+            <i class="fas fa-lock mr-1"></i> Your information is secure and private
+        </p>
+    </div>
+
+    <script>
+        // FIREBASE CONFIGURATION
+        const firebaseConfig = {
+            apiKey: "AIzaSyBnxAxH0nzGosa8yDQ4IF-kan2wGt81Ero",
+            authDomain: "my-expense-tracker-4e202.firebaseapp.com",
+            projectId: "my-expense-tracker-4e202",
+            storageBucket: "my-expense-tracker-4e202.firebasestorage.app",
+            messagingSenderId: "854877686372",
+            appId: "1:854877686372:web:27c2d6043c4d9189fc6d71"
+        };
+
+        // 🔴🔴🔴 ALLOWED EMAILS (Optional whitelist) 🔴🔴🔴
+        const USE_EMAIL_WHITELIST = false;
+        const ALLOWED_EMAILS = ["suostheansou@gmail.com", "theansou092@gmail.com"];
+
+        // Admin emails for role assignment
+        const ADMIN_EMAILS = ["suostheansou@gmail.com", "theansou092@gmail.com"];
+
+        let auth = null;
+        let db = null;
+        let authMode = 'login'; // 'login' or 'register'
+        let currentAuthUser = null;
+
+        // Initialize Firebase
+        function initializeAuth() {
+            if (typeof firebase === 'undefined') {
+                showMessage('Firebase SDK not loaded.', 'error');
+                return;
+            }
+            firebase.initializeApp(firebaseConfig);
+            auth = firebase.auth();
+            db = firebase.firestore();
+
+            // Enable persistent login
+            auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+                .catch(err => console.warn('Persistence setup warning:', err));
+
+            // Check if already logged in
+            auth.onAuthStateChanged(handleAuthStateChange);
+        }
+
+        async function handleAuthStateChange(user) {
+            const authScreen = document.getElementById('auth-screen');
+            const loadingScreen = document.getElementById('loading-screen');
+            const verificationScreen = document.getElementById('verification-screen');
+            const profileSetupScreen = document.getElementById('profile-setup-screen');
+
+            // Hide all screens first
+            authScreen.classList.add('hidden');
+            loadingScreen.classList.add('hidden');
+            verificationScreen.classList.add('hidden');
+            profileSetupScreen.classList.add('hidden');
+
+            if (user) {
+                currentAuthUser = user;
+                loadingScreen.classList.remove('hidden');
+
+                // Step 1: Check email verification (skip for Google sign-in)
+                const isGoogleUser = user.providerData.some(p => p.providerId === 'google.com');
+
+                if (!user.emailVerified && !isGoogleUser) {
+                    // Show verification reminder
+                    loadingScreen.classList.add('hidden');
+                    verificationScreen.classList.remove('hidden');
+                    document.getElementById('verification-email-display').textContent = `Email sent to: ${user.email}`;
+                    return;
+                }
+
+                // Step 2: Check if profile is complete
+                const profileComplete = await checkProfileComplete(user);
+
+                if (!profileComplete) {
+                    // Show profile setup screen
+                    loadingScreen.classList.add('hidden');
+                    profileSetupScreen.classList.remove('hidden');
+                    document.getElementById('profile-email-display').textContent = user.email;
+
+                    // Show verified badge if email is verified
+                    if (user.emailVerified || isGoogleUser) {
+                        document.getElementById('email-verified-badge').classList.remove('hidden');
+                    }
+
+                    // Pre-fill from Google profile if available
+                    if (isGoogleUser && user.displayName) {
+                        const nameParts = user.displayName.split(' ');
+                        document.getElementById('profile-first-name').value = nameParts[0] || '';
+                        document.getElementById('profile-last-name').value = nameParts.slice(1).join(' ') || '';
+                        document.getElementById('profile-display-name').value = user.displayName;
+                    }
+                    return;
+                }
+
+                // All checks passed - redirect to main app
+
+
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 1000);
+            } else {
+                // User is not signed in - show login form
+                currentAuthUser = null;
+                localStorage.removeItem('userLoggedIn');
+                localStorage.removeItem('userEmail');
+                authScreen.classList.remove('hidden');
+            }
+        }
+
+        // Check if user profile is complete in Firestore
+        async function checkProfileComplete(user) {
+            try {
+                const userDoc = await db.collection('users').doc(user.uid).get();
+
+                if (!userDoc.exists) {
+                    return false;
+                }
+
+                const data = userDoc.data();
+                // Profile is complete if firstName is set
+                return !!(data.firstName && data.firstName.trim());
+            } catch (error) {
+                console.error('Error checking profile:', error);
+                return false;
+            }
+        }
+
+        // Save profile to Firestore
+        async function saveUserProfile(user, profileData) {
+            try {
+                const userRef = db.collection('users').doc(user.uid);
+                const userDoc = await userRef.get();
+
+                const fullDisplayName = profileData.displayName ||
+                    `${profileData.firstName} ${profileData.lastName}`.trim();
+
+                if (!userDoc.exists) {
+                    // Create new user document
+                    await userRef.set({
+                        uid: user.uid,
+                        email: user.email || '',
+                        firstName: profileData.firstName,
+                        lastName: profileData.lastName,
+                        displayName: fullDisplayName,
+                        phone: profileData.phone || '',
+                        role: ADMIN_EMAILS.includes((user.email || '').toLowerCase()) ? 'admin' : 'user',
+                        status: 'active',
+                        emailVerified: user.emailVerified,
+                        profileCompleted: true,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                } else {
+                    // Update existing user document
+                    await userRef.update({
+                        firstName: profileData.firstName,
+                        lastName: profileData.lastName,
+                        displayName: fullDisplayName,
+                        phone: profileData.phone || '',
+                        emailVerified: user.emailVerified,
+                        profileCompleted: true,
+                        lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                }
+
+                // Update Firebase Auth displayName
+                await user.updateProfile({
+                    displayName: fullDisplayName
+                });
+
+                return true;
+            } catch (error) {
+                console.error('Error saving profile:', error);
+                throw error;
+            }
+        }
+
+        // Show message function
+        function showMessage(message, type = 'info') {
+            const container = document.getElementById('message-container');
+            const colors = {
+                success: 'bg-green-500 text-white',
+                error: 'bg-red-500 text-white',
+                info: 'bg-indigo-500 text-white',
+                warning: 'bg-amber-500 text-white'
+            };
+            const icons = {
+                success: '<i class="fas fa-check-circle"></i>',
+                error: '<i class="fas fa-exclamation-circle"></i>',
+                info: '<i class="fas fa-info-circle"></i>',
+                warning: '<i class="fas fa-exclamation-triangle"></i>'
+            };
+            const alert = document.createElement('div');
+            alert.className = `px-4 py-3 ${colors[type] || colors.info} rounded-xl shadow-lg flex items-center gap-3 backdrop-blur-sm animate-fade-in-down cursor-pointer`;
+            alert.innerHTML = `
+                <span class="text-base">${icons[type] || icons.info}</span>
+                <p class="text-sm font-medium flex-1">${message}</p>
+                <button class="text-white/80 hover:text-white text-lg">&times;</button>
+            `;
+            alert.querySelector('button').onclick = (e) => {
+                e.stopPropagation();
+                alert.remove();
+            };
+            alert.onclick = () => alert.remove();
+            container.appendChild(alert);
+
+            setTimeout(() => {
+                if (alert.parentNode) {
+                    alert.style.opacity = '0';
+                    alert.style.transform = 'translateY(10px)';
+                    alert.style.transition = 'all 0.3s ease';
+                    setTimeout(() => alert.remove(), 300);
+                }
+            }, 4000);
+        }
+
+        // Setup UI Events
+        function setupUIEvents() {
+            // Email/Password Form
+            document.getElementById('email-password-form').addEventListener('submit', async(e) => {
+                e.preventDefault();
+                const email = document.getElementById('auth-email').value.trim();
+                const password = document.getElementById('auth-password').value;
+                const confirmPassword = document.getElementById('auth-confirm-password').value;
+                const loginBtn = document.getElementById('login-btn');
+                const originalText = loginBtn.textContent;
+
+                if (!email || !password) {
+                    showMessage('Please enter email and password.', 'error');
+                    return;
+                }
+
+                // Validate confirm password for registration
+                if (authMode === 'register') {
+                    if (!confirmPassword) {
+                        showMessage('Please confirm your password.', 'error');
+                        return;
+                    }
+                    if (password !== confirmPassword) {
+                        showMessage('Passwords do not match.', 'error');
+                        return;
+                    }
+                }
+
+                loginBtn.disabled = true;
+                loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Processing...';
+
+                try {
+                    if (authMode === 'register') {
+                        // Create new account
+                        const userCred = await auth.createUserWithEmailAndPassword(email, password);
+
+                        // Send verification email
+                        await userCred.user.sendEmailVerification();
+
+                        showMessage('📧 Account created! Please check your email to verify your account.', 'success');
+                    } else {
+                        // Sign in existing user
+                        await auth.signInWithEmailAndPassword(email, password);
+                        showMessage('Login successful!', 'success');
+                    }
+                } catch (err) {
+                    console.error('Auth error:', err);
+                    let errMsg = 'Authentication failed.';
+                    if (err.code === 'auth/user-not-found') errMsg = 'No account found with this email.';
+                    else if (err.code === 'auth/wrong-password') errMsg = 'Incorrect password.';
+                    else if (err.code === 'auth/email-already-in-use') errMsg = 'This email is already registered.';
+                    else if (err.code === 'auth/weak-password') errMsg = 'Password should be at least 6 characters.';
+                    else if (err.code === 'auth/invalid-email') errMsg = 'Invalid email format.';
+                    else if (err.code === 'auth/too-many-requests') errMsg = 'Too many attempts. Please try again later.';
+                    showMessage(errMsg, 'error');
+                } finally {
+                    loginBtn.disabled = false;
+                    loginBtn.textContent = authMode === 'register' ? 'Create Account' : 'Sign In';
+                }
+            });
+
+            // Toggle between login and register
+            document.getElementById('auth-toggle-link').addEventListener('click', (e) => {
+                e.preventDefault();
+                authMode = authMode === 'login' ? 'register' : 'login';
+                const toggleLink = document.getElementById('auth-toggle-link');
+                const loginBtn = document.getElementById('login-btn');
+                const titleEl = document.querySelector('#auth-screen h2');
+                const subtitleEl = document.querySelector('#auth-screen p');
+                const confirmPasswordContainer = document.getElementById('confirm-password-container');
+                const confirmPasswordInput = document.getElementById('auth-confirm-password');
+
+                if (authMode === 'register') {
+                    toggleLink.textContent = 'Sign In';
+                    toggleLink.previousElementSibling.textContent = 'Already have an account?';
+                    loginBtn.textContent = 'Create Account';
+                    titleEl.textContent = 'Create Account';
+                    subtitleEl.textContent = 'Join your shared group expenses securely.';
+                    confirmPasswordContainer.classList.remove('hidden');
+                    confirmPasswordInput.setAttribute('required', 'required');
+                } else {
+                    toggleLink.textContent = 'Create one';
+                    toggleLink.previousElementSibling.textContent = "Don't have an account?";
+                    loginBtn.textContent = 'Sign In';
+                    titleEl.textContent = 'Welcome Back';
+                    subtitleEl.textContent = 'Access your shared group expenses securely.';
+                    confirmPasswordContainer.classList.add('hidden');
+                    confirmPasswordInput.removeAttribute('required');
+                    confirmPasswordInput.value = '';
+                }
+            });
+
+            // Forgot Password
+            // Forgot Password Modal Logic
+            const forgotModal = document.getElementById('forgot-modal');
+            const forgotBtn = document.getElementById('forgot-password-btn');
+            const forgotCloseBtn = document.getElementById('forgot-close-btn');
+            const forgotSendBtn = document.getElementById('forgot-send-btn');
+            const forgotEmailInput = document.getElementById('forgot-email');
+            const forgotFeedback = document.getElementById('forgot-feedback');
+
+            forgotBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                forgotModal.classList.remove('hidden');
+                forgotEmailInput.value = document.getElementById('auth-email').value.trim();
+                forgotFeedback.textContent = '';
+                forgotSendBtn.disabled = false;
+            });
+
+            forgotCloseBtn.addEventListener('click', () => {
+                forgotModal.classList.add('hidden');
+            });
+
+            forgotSendBtn.addEventListener('click', async() => {
+                const email = forgotEmailInput.value.trim();
+                forgotFeedback.textContent = '';
+                if (!email) {
+                    forgotFeedback.textContent = 'Please enter your email address.';
+                    forgotFeedback.className = 'text-center text-sm mb-3 min-h-[1.5em] text-red-400';
+                    return;
+                }
+                forgotSendBtn.disabled = true;
+                forgotFeedback.textContent = 'Sending...';
+                forgotFeedback.className = 'text-center text-sm mb-3 min-h-[1.5em] text-[var(--dark-text-muted)]';
+                try {
+                    await auth.sendPasswordResetEmail(email);
+                    forgotFeedback.textContent = 'Password reset email sent! Check your inbox.';
+                    forgotFeedback.className = 'text-center text-sm mb-3 min-h-[1.5em] text-green-400';
+                } catch (err) {
+                    forgotFeedback.textContent = 'Error: ' + (err.message || 'Failed to send reset email.');
+                    forgotFeedback.className = 'text-center text-sm mb-3 min-h-[1.5em] text-red-400';
+                } finally {
+                    forgotSendBtn.disabled = false;
+                }
+            });
+
+            // Google Sign In
+            document.getElementById('google-signin-btn').addEventListener('click', async() => {
+                const btn = document.getElementById('google-signin-btn');
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Signing in...';
+
+                try {
+                    const provider = new firebase.auth.GoogleAuthProvider();
+                    provider.setCustomParameters({
+                        prompt: 'select_account'
+                    });
+                    await auth.signInWithPopup(provider);
+                    showMessage('Google sign-in successful!', 'success');
+                } catch (err) {
+                    console.error('Google sign-in error:', err);
+                    let errMsg = 'Google sign-in failed.';
+                    if (err.code === 'auth/popup-closed-by-user') errMsg = 'Sign-in popup was closed.';
+                    else if (err.code === 'auth/cancelled-popup-request') errMsg = 'Sign-in was cancelled.';
+                    showMessage(errMsg, 'error');
+                } finally {
+                    btn.disabled = false;
+                    btn.innerHTML = `
+                        <svg class="w-5 h-5 mr-3" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                        </svg>
+                        Sign In with Google
+                    `;
+                }
+            });
+
+            // ===== Verification Screen Events =====
+
+            // Resend verification email
+            document.getElementById('resend-verification-btn').addEventListener('click', async() => {
+                const btn = document.getElementById('resend-verification-btn');
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Sending...';
+
+                try {
+                    if (currentAuthUser) {
+                        await currentAuthUser.sendEmailVerification();
+                        showMessage('📧 Verification email sent! Please check your inbox.', 'success');
+                    }
+                } catch (err) {
+                    console.error('Resend verification error:', err);
+                    if (err.code === 'auth/too-many-requests') {
+                        showMessage('Too many requests. Please wait a moment and try again.', 'warning');
+                    } else {
+                        showMessage('Error sending email: ' + err.message, 'error');
+                    }
+                } finally {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-paper-plane mr-2"></i> Resend Verification Email';
+                }
+            });
+
+            // Check verification status
+            document.getElementById('check-verification-btn').addEventListener('click', async() => {
+                const btn = document.getElementById('check-verification-btn');
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Checking...';
+
+                try {
+                    if (currentAuthUser) {
+                        await currentAuthUser.reload();
+
+                        if (currentAuthUser.emailVerified) {
+                            showMessage('✅ Email verified! Continuing...', 'success');
+                            handleAuthStateChange(currentAuthUser);
+                        } else {
+                            showMessage('Email not yet verified. Please check your inbox.', 'warning');
+                        }
+                    }
+                } catch (err) {
+                    console.error('Check verification error:', err);
+                    showMessage('Error: ' + err.message, 'error');
+                } finally {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-refresh mr-2"></i> I\'ve Verified, Continue';
+                }
+            });
+
+            // Back to login
+            document.getElementById('back-to-login-btn').addEventListener('click', async() => {
+                await auth.signOut();
+            });
+
+            // ===== Profile Setup Form =====
+            document.getElementById('profile-setup-form').addEventListener('submit', async(e) => {
+                e.preventDefault();
+
+                const firstName = document.getElementById('profile-first-name').value.trim();
+                const lastName = document.getElementById('profile-last-name').value.trim();
+                const displayName = document.getElementById('profile-display-name').value.trim();
+                const phone = document.getElementById('profile-phone').value.trim();
+
+                if (!firstName || !lastName) {
+                    showMessage('Please enter your first and last name.', 'error');
+                    return;
+                }
+
+                const btn = document.getElementById('complete-profile-btn');
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Saving...';
+
+                try {
+                    await saveUserProfile(currentAuthUser, {
+                        firstName,
+                        lastName,
+                        displayName,
+                        phone
+                    });
+
+                    showMessage('🎉 Profile complete! Welcome!', 'success');
+
+                    // Continue to main app
+                    setTimeout(() => {
+                        // Removed localStorage setItem for userLoggedIn and userEmail for security
+                        window.location.href = 'index.html';
+                    }, 1000);
+
+                } catch (err) {
+                    console.error('Profile save error:', err);
+                    showMessage('Error saving profile: ' + err.message, 'error');
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-check-circle mr-2"></i> Complete Setup & Continue';
+                }
+            });
+        }
+
+        // Initialize on page load
+        window.onload = () => {
+            setupUIEvents();
+            initializeAuth();
+        };
+    </script>
+
+</body>
+
+</html>
