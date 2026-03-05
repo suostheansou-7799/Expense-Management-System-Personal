@@ -981,79 +981,83 @@
                         </div>
                     </div>
 
-                    <div class="mb-5 p-4 bg-white/30 rounded-2xl border border-white/40 shadow-inner space-y-3 history-filters">
-                        <div class="grid grid-cols-2 md:grid-cols-3 gap-3 filter-row-mobile">
-                            <select id="history-filter-type" class="glass-input w-full rounded-lg text-sm text-gray-700">
+                    <div class="lg:grid lg:grid-cols-12 lg:gap-5 lg:items-start">
+                        <div class="mb-5 lg:mb-0 p-4 bg-white/30 rounded-2xl border border-white/40 shadow-inner space-y-3 history-filters lg:col-span-3 xl:col-span-3 lg:sticky lg:top-4">
+                            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-1 gap-3 filter-row-mobile">
+                                <select id="history-filter-type" class="glass-input w-full rounded-lg text-sm text-gray-700">
                                 <option value="">All Types</option>
                                 <option value="expense">Expenses</option>
                                 <option value="income">Income</option>
                             </select>
-                            <select id="history-filter-category" class="glass-input w-full rounded-lg text-sm text-gray-700"><option value="">All Categories</option></select>
-                            <select id="history-filter-user" class="glass-input w-full rounded-lg text-sm text-gray-700"><option value="">All Users</option></select>
-                            <div class="sort-month-row-mobile flex flex-row gap-2 col-span-2 md:col-span-1">
-                                <select id="history-sort-by" class="glass-input w-full rounded-lg text-sm text-gray-700">
+                                <select id="history-filter-category" class="glass-input w-full rounded-lg text-sm text-gray-700"><option value="">All Categories</option></select>
+                                <select id="history-filter-user" class="glass-input w-full rounded-lg text-sm text-gray-700"><option value="">All Users</option></select>
+                                <div class="sort-month-row-mobile flex flex-row lg:flex-col gap-2 col-span-2 md:col-span-1 lg:col-span-1">
+                                    <select id="history-sort-by" class="glass-input w-full rounded-lg text-sm text-gray-700">
                                     <option value="date-desc">Newest First</option>
                                     <option value="date-asc">Oldest First</option>
                                     <option value="amount-desc">Highest Amount</option>
                                     <option value="amount-asc">Lowest Amount</option>
                                 </select>
-                                <select id="history-filter-month" class="glass-input w-full rounded-lg text-sm text-gray-700"><option value="">All Months</option></select>
-                            </div>
-                        </div>
-                        <div class="flex flex-col md:flex-row gap-3 items-center">
-                            <div class="date-range-row-mobile flex flex-row gap-2 w-full items-center">
-                                <input type="date" id="history-filter-start-date" class="glass-input rounded-lg p-2 text-sm flex-1 w-full">
-                                <span class="text-gray-500 font-bold">to</span>
-                                <input type="date" id="history-filter-end-date" class="glass-input rounded-lg p-2 text-sm flex-1 w-full">
-                            </div>
-                            <div class="clear-search-row-mobile flex flex-row gap-2 w-full mt-2">
-                                <input type="text" id="history-filter-description" placeholder="Search description..." class="glass-input w-full rounded-lg p-2 text-sm flex-1">
-                                <button id="history-clear-filters-btn" class="bg-gray-200/50 hover:bg-gray-300/80 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium transition flex-shrink-0">Clear</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Mobile Card View -->
-                    <div id="history-cards-container" class="space-y-3 max-h-[600px] ios-scroll elastic-scroll lg:hidden" style="-webkit-overflow-scrolling: touch; touch-action: pan-y; overscroll-behavior: contain;">
-                        <div id="history-empty-state" class="text-center py-12 text-gray-500">
-                            <i class="fas fa-inbox text-4xl mb-3 opacity-50"></i>
-                            <p class="text-sm">No transactions yet.</p>
-                        </div>
-                    </div>
-
-                    <!-- Desktop Table View -->
-                    <div class="hidden lg:block overflow-x-auto max-h-[500px] md:max-h-[700px] relative rounded-xl border border-white/30 shadow-sm bg-white/20 history-table-container">
-                        <table class="min-w-full divide-y divide-gray-200/50">
-                            <thead class="sticky-header">
-                                <tr>
-                                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Type</th>
-                                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Date</th>
-                                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider amount-cell">Amount</th>
-                                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider category-cell">Category</th>
-                                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider desc-cell">Desc</th>
-                                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">User</th>
-                                </tr>
-                            </thead>
-                            <tbody id="history-table-body" class="divide-y divide-gray-200/30">
-                                <tr>
-                                    <td colspan="6" class="text-center py-8 text-gray-500 italic">Loading data...</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <div id="history-summary-bar" class="history-mobile-summary rounded-xl p-4 mt-4 text-sm font-semibold shadow border">
-                        <div class="flex flex-wrap items-center justify-between gap-4">
-                            <div class="flex items-center gap-2">
-                                <i class="fas fa-calculator text-indigo-400"></i>
-                                <span class="font-bold text-base">Summary</span>
-                            </div>
-                            <div class="history-summary-inline flex flex-wrap items-center gap-2 md:gap-4">
-                                <div class="flex items-center gap-2" id="history-total-count">
-                                    <!-- Filled by JS -->
+                                    <select id="history-filter-month" class="glass-input w-full rounded-lg text-sm text-gray-700"><option value="">All Months</option></select>
                                 </div>
-                                <div id="history-total-amount">
-                                    <!-- Filled by JS -->
+                            </div>
+                            <div class="flex flex-col md:flex-row lg:flex-col gap-3 items-center lg:items-stretch">
+                                <div class="date-range-row-mobile flex flex-row lg:flex-col gap-2 w-full items-center lg:items-stretch">
+                                    <input type="date" id="history-filter-start-date" class="glass-input rounded-lg p-2 text-sm flex-1 w-full">
+                                    <span class="text-gray-500 font-bold lg:hidden">to</span>
+                                    <input type="date" id="history-filter-end-date" class="glass-input rounded-lg p-2 text-sm flex-1 w-full">
+                                </div>
+                                <div class="clear-search-row-mobile flex flex-row lg:flex-col gap-2 w-full mt-2 lg:mt-0">
+                                    <input type="text" id="history-filter-description" placeholder="Search description..." class="glass-input w-full rounded-lg p-2 text-sm flex-1">
+                                    <button id="history-clear-filters-btn" class="bg-gray-200/50 hover:bg-gray-300/80 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium transition flex-shrink-0">Clear</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="lg:col-span-9 xl:col-span-9 space-y-4 min-w-0 history-right-panel">
+                            <!-- Card View (mobile + desktop) -->
+                            <div id="history-cards-container" class="space-y-2 max-h-[calc(100vh-280px)] md:max-h-[700px] lg:max-h-[calc(100vh-320px)] ios-scroll elastic-scroll" style="-webkit-overflow-scrolling: touch; touch-action: pan-y; overscroll-behavior: contain;">
+                                <div id="history-empty-state" class="text-center py-12 text-gray-500">
+                                    <i class="fas fa-inbox text-4xl mb-3 opacity-50"></i>
+                                    <p class="text-sm">No transactions yet.</p>
+                                </div>
+                            </div>
+
+                            <!-- Desktop Table View (hidden - using card view instead) -->
+                            <div class="hidden overflow-x-auto max-h-[500px] md:max-h-[700px] relative rounded-xl border border-white/30 shadow-sm bg-white/20 history-table-container min-w-0">
+                                <table class="min-w-full divide-y divide-gray-200/50">
+                                    <thead class="sticky-header">
+                                        <tr>
+                                            <th class="px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Type</th>
+                                            <th class="px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Date</th>
+                                            <th class="px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider amount-cell">Amount</th>
+                                            <th class="px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider category-cell">Category</th>
+                                            <th class="px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider desc-cell">Desc</th>
+                                            <th class="px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">User</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="history-table-body" class="divide-y divide-gray-200/30">
+                                        <tr>
+                                            <td colspan="6" class="text-center py-8 text-gray-500 italic">Loading data...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div id="history-summary-bar" class="history-mobile-summary rounded-xl p-4 mt-4 lg:mt-2 text-sm font-semibold shadow border lg:sticky lg:bottom-0">
+                                <div class="flex flex-wrap items-center justify-between gap-4">
+                                    <div class="flex items-center gap-2">
+                                        <i class="fas fa-calculator text-indigo-400"></i>
+                                        <span class="font-bold text-base">Summary</span>
+                                    </div>
+                                    <div class="history-summary-inline flex flex-wrap items-center gap-2 md:gap-4">
+                                        <div class="flex items-center gap-2" id="history-total-count">
+                                            <!-- Filled by JS -->
+                                        </div>
+                                        <div id="history-total-amount">
+                                            <!-- Filled by JS -->
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
